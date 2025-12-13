@@ -1,8 +1,16 @@
-library(tidyverse)
-library(ggpubr)
-library(data.table)
-library(hexbin)  
-library(ggpointdensity) 
+load_required_pkgs <- function() {
+  pkgs <- c("tidyverse", "ggpubr", "data.table", "hexbin", "ggpointdensity")
+
+  to_install <- pkgs[!vapply(pkgs, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1))]
+  if (length(to_install) > 0) {
+    install.packages(to_install, repos = "https://cloud.r-project.org")
+  }
+
+  invisible(lapply(pkgs, library, character.only = TRUE))
+}
+
+load_required_pkgs()
+
 # --- CONFIGURATION ---
 #  three different datasets to test the hypothesis against increasing levels of stringency:
 # 1. Random: Baseline comparison against random genome.
@@ -96,7 +104,7 @@ run_analysis <- function(dataset_name, file_path) {
   scale_color_manual(values = c("Negative" = "blue", "Positive" = "red")) +
   
   labs(
-    title = paste("Correlation Analysis:", dataset_name),
+    title = paste("Correlation Analysis:"),
     subtitle = "Mean DNA Shape vs. Mean Triplex Stability (Positives Only)",
     x = "Normalized Shape Feature Value",
     y = "Mean 3plex Stability Score"
@@ -132,7 +140,7 @@ for (name in names(files)) {
 
 # --- PART 2: REGION-LEVEL ANALYSIS (Individual Peaks) ---
 run_region_analysis <- function(dataset_name, file_path, bins = 25, top_percent = 0.1) {
-  message(paste0("--- Processing Region Plot for: ", dataset_name, " (Top ", top_percent * 100, "%) ---"))
+  message(paste0("--- Processing Region Plot for: ", " (Top ", top_percent * 100, "%) ---"))
   if (!file.exists(file_path)) return(NULL)
   df <- fread(file_path)
 
@@ -193,7 +201,7 @@ run_region_analysis <- function(dataset_name, file_path, bins = 25, top_percent 
     ) +
     guides(color = guide_legend(override.aes = list(size = 4, alpha = 1))) +  # Make legend clearer
     labs(
-      title    = paste("Region-Level Correlation (Points):", dataset_name),
+      title    = paste("Region-Level Correlation (Points):"),
       subtitle = paste0(
         "Top ", top_percent * 100, "% 3plex score in yellow; remaining ",
         100 - top_percent * 100, "% in gray (Positives Only)"
@@ -213,12 +221,12 @@ run_region_analysis <- function(dataset_name, file_path, bins = 25, top_percent 
       legend.text = element_text(size = 10)
     )
 
-  output_filename_pdf <- paste0("RegionPlot_OVERALL_POINTS_", dataset_name, "_Top", top_percent * 100, ".pdf")
+  output_filename_pdf <- paste0("RegionPlot_OVERALL_POINTS_", "_Top", top_percent * 100, ".pdf")
   ggsave(output_filename_pdf, plot = p_overall_points, width = 10, height = 8, device = "pdf")
   message(paste("Saved PDF plot to:", output_filename_pdf))
   
   # Optional PNG backup
-  output_filename_png <- paste0("RegionPlot_OVERALL_POINTS_", dataset_name, "_Top", top_percent * 100, ".png")
+  output_filename_png <- paste0("RegionPlot_OVERALL_POINTS_", "_Top", top_percent * 100, ".png")
   ggsave(output_filename_png, plot = p_overall_points, width = 10, height = 8, dpi = 600)
 
   # --- PLOT: POINTS COLORED BY DENSITY ---
@@ -257,7 +265,7 @@ run_region_analysis <- function(dataset_name, file_path, bins = 25, top_percent 
     facet_wrap(~Feature, scales = "free") +
     
     labs(
-      title = paste("Region-Level Correlation (Density):", dataset_name),
+      title = paste("Region-Level Correlation (Density):"),
       subtitle = "Points colored by local density (lighter = higher density)",
       x = "DNA Shape Value",
       y = "3plex Stability Score"
@@ -275,12 +283,12 @@ run_region_analysis <- function(dataset_name, file_path, bins = 25, top_percent 
     )
 
   # Save as PDF for publication
-  output_filename_pdf <- paste0("RegionPlot_OVERALL_DENSITY_", dataset_name, ".pdf")
+  output_filename_pdf <- paste0("RegionPlot_OVERALL_DENSITY_", ".pdf")
   ggsave(output_filename_pdf, plot = p_overall_density, width = 10, height = 8, device = "pdf")
   message(paste("Saved PDF plot to:", output_filename_pdf))
   
   # Optional PNG backup
-  output_filename_png <- paste0("RegionPlot_OVERALL_DENSITY_", dataset_name, ".png")
+  output_filename_png <- paste0("RegionPlot_OVERALL_DENSITY_", ".png")
   ggsave(output_filename_png, plot = p_overall_density, width = 10, height = 8, dpi = 600)
   message(paste("Saved PNG plot to:", output_filename_png))
 
@@ -315,7 +323,7 @@ run_region_analysis <- function(dataset_name, file_path, bins = 25, top_percent 
     ) %>%
     dplyr::mutate(p_adj_bh = stats::p.adjust(p_value, method = "BH"))
 
-  output_filename_cor <- paste0("RegionPlot_FACETED_cor_table_", dataset_name, "_Top", top_percent * 100, ".csv")
+  output_filename_cor <- paste0("RegionPlot_FACETED_cor_table_", "_Top", top_percent * 100, ".csv")
   data.table::fwrite(cor_table_faceted, output_filename_cor)
   message(paste("Saved faceted correlation table to:", output_filename_cor))
 
@@ -377,12 +385,12 @@ run_region_analysis <- function(dataset_name, file_path, bins = 25, top_percent 
     )
 
   # Save as PDF for publication
-  output_filename_pdf <- paste0("RegionPlot_FACETED_", dataset_name, "_Top", top_percent * 100, ".pdf")
+  output_filename_pdf <- paste0("RegionPlot_FACETED_", "_Top", top_percent * 100, ".pdf")
   ggsave(output_filename_pdf, plot = p_faceted, width = 12, height = 30, limitsize = FALSE, device = "pdf")
   message(paste("Saved PDF plot to:", output_filename_pdf))
   
   # Optional PNG backup
-  output_filename_png <- paste0("RegionPlot_FACETED_", dataset_name, "_Top", top_percent * 100, ".png")
+  output_filename_png <- paste0("RegionPlot_FACETED_", "_Top", top_percent * 100, ".png")
   ggsave(output_filename_png, plot = p_faceted, width = 12, height = 30, limitsize = FALSE, dpi = 600)
   message(paste("Saved PNG plot to:", output_filename_png))
 }
