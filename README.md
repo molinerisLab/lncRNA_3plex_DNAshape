@@ -53,4 +53,3 @@ The script processes three different control datasets (`Random_Negatives`, `cCRE
 * **Description:** A CSV file containing the Pearson correlation coefficients (R) and p-values for every lncRNA-shape pair.
 
 ---
-*Note: The script runs the analysis for all three control datasets (Random, cCRE, Biosample). The filenames listed above correspond to the 'Random_Negatives' dataset, which is the primary dataset used for the manuscript figures.*
