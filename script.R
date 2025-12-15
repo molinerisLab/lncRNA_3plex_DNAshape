@@ -121,12 +121,12 @@ run_analysis <- function(dataset_name, file_path) {
     legend.text = element_text(size = 10)
   )
 
-  # Save as high-resolution PDF for publication
+  # Save as high-resolution PDF 
   output_filename_pdf <- paste0("Scatterplot_", dataset_name, ".pdf")
   ggsave(output_filename_pdf, plot = p, width = 10, height = 8, device = "pdf")
   message(paste("Saved PDF plot to:", output_filename_pdf))
   
-  # Also save PNG version (optional, for presentations/slides)
+  #  save PNG version 
   output_filename_png <- paste0("Scatterplot_", dataset_name, ".png")
   ggsave(output_filename_png, plot = p, width = 10, height = 8, dpi = 600)
   message(paste("Saved PNG plot to:", output_filename_png))
@@ -147,7 +147,7 @@ run_region_analysis <- function(dataset_name, file_path, bins = 25, top_percent 
   # FILTER: Select ONLY Positive peaks
   df_pos <- df %>% filter(get(label_col) == "pos")
 
-  # (Optional) GLOBAL CUTOFF for PLOT A/B (unchanged)
+  # GLOBAL CUTOFF for PLOT A/B 
   score_cutoff <- quantile(df_pos[[score_col]], probs = 1 - top_percent, na.rm = TRUE)
   df_pos <- df_pos %>%
     mutate(
@@ -167,14 +167,14 @@ run_region_analysis <- function(dataset_name, file_path, bins = 25, top_percent 
   p_overall_points <- ggplot(df_long, aes(x = Shape_Value, y = .data[[score_col]], color = Group_global)) +
     geom_point(alpha = 0.2, size = 1) +
     geom_smooth(
-      aes(group = 1),  # Force single line, don't inherit color grouping
+      aes(group = 1), 
       method = "lm", 
       color = "black", 
       linetype = "dashed",
       se = FALSE
     ) +
     stat_cor(
-      aes(group = 1),  # Same here
+      aes(group = 1), 
       method = "pearson", 
       label.x.npc = 1,     
       label.y.npc = 1,     
@@ -199,7 +199,7 @@ run_region_analysis <- function(dataset_name, file_path, bins = 25, top_percent 
       ),
       name = "3plex score group"
     ) +
-    guides(color = guide_legend(override.aes = list(size = 4, alpha = 1))) +  # Make legend clearer
+    guides(color = guide_legend(override.aes = list(size = 4, alpha = 1))) +  
     labs(
       title    = paste("Region-Level Correlation (Points):"),
       subtitle = paste0(
@@ -282,12 +282,12 @@ run_region_analysis <- function(dataset_name, file_path, bins = 25, top_percent 
       legend.text = element_text(size = 10)
     )
 
-  # Save as PDF for publication
+  # Save as PDF 
   output_filename_pdf <- paste0("RegionPlot_OVERALL_DENSITY_", ".pdf")
   ggsave(output_filename_pdf, plot = p_overall_density, width = 10, height = 8, device = "pdf")
   message(paste("Saved PDF plot to:", output_filename_pdf))
   
-  # Optional PNG backup
+  # Save as PNG 
   output_filename_png <- paste0("RegionPlot_OVERALL_DENSITY_", ".png")
   ggsave(output_filename_png, plot = p_overall_density, width = 10, height = 8, dpi = 600)
   message(paste("Saved PNG plot to:", output_filename_png))
@@ -338,7 +338,7 @@ run_region_analysis <- function(dataset_name, file_path, bins = 25, top_percent 
       method = "lm", 
       color = "black", 
       se = FALSE, 
-      linewidth = 0.5  # Use linewidth instead of deprecated size
+      linewidth = 0.5  
     ) +
     # per-panel Pearson r and p-value (one box per facet)
     stat_cor(
@@ -365,7 +365,7 @@ run_region_analysis <- function(dataset_name, file_path, bins = 25, top_percent 
       ),
       name = "3plex score group (per lncRNA)"
     ) +
-    guides(color = guide_legend(override.aes = list(size = 4, alpha = 1))) +  # Clear legend symbols
+    guides(color = guide_legend(override.aes = list(size = 4, alpha = 1))) +  
     theme_bw() +
     theme(
       strip.background = element_rect(fill = "#f0f0f0"),
@@ -384,12 +384,12 @@ run_region_analysis <- function(dataset_name, file_path, bins = 25, top_percent 
       y = "3plex Stability Score"
     )
 
-  # Save as PDF for publication
+  # Save as PDF 
   output_filename_pdf <- paste0("RegionPlot_FACETED_", "_Top", top_percent * 100, ".pdf")
   ggsave(output_filename_pdf, plot = p_faceted, width = 12, height = 30, limitsize = FALSE, device = "pdf")
   message(paste("Saved PDF plot to:", output_filename_pdf))
   
-  # Optional PNG backup
+  # Save as PNG 
   output_filename_png <- paste0("RegionPlot_FACETED_", "_Top", top_percent * 100, ".png")
   ggsave(output_filename_png, plot = p_faceted, width = 12, height = 30, limitsize = FALSE, dpi = 600)
   message(paste("Saved PNG plot to:", output_filename_png))
