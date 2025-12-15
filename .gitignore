@@ -6,4 +6,8 @@
 *.tsv
 *.gz
 *.html
-*.csv
+*.csvBiosample_Specific/ALL_shape.3plex_stability.matrix
+Random_Negatives/ALL_shape.3plex_stability.matrix
+cCRE_Balanced/ALL_shape.3plex_stability.matrix
+ca_neg_regions/general_cCRE/ALL_shape.aggregated.fixed
+ca_neg_regions/specific-no_low_DNase/ALL_shape.aggregated.fixed
