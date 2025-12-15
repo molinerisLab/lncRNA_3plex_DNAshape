@@ -1,0 +1,138 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(pROC)
+
+setwd("/home/molinerislab/RNABSdb_3DDNA/dataset/v1/")
+set.seed(42)
+
+comparison_models_AUC <- function (condition, stability, df_path, comparison_path){
+  setwd("/home/molinerislab/RNABSdb_3DDNA/dataset/v1/")
+  set.seed(42)
+
+  formula_with_shapes <- as.formula(paste("pos_neg ~", stability, "+ HelT + MGW + ProT + Roll"))
+  formula_stability_only <- as.formula(paste("pos_neg ~", stability))
+  
+  random_df<-read.table(comparison_path, header = T)
+  random_df$pos_neg<-factor(random_df$pos_neg, levels=c("pos","neg"))
+  random_min_rows <- min(table(random_df$lncRNA))
+  random_df %>% group_by(lncRNA) %>% sample_n(random_min_rows) -> random_df_balanced
+
+  random_model_with_shapes <- glm(formula_with_shapes, family = binomial(link = "logit"), data=random_df_balanced, na.action = na.exclude)
+  random_model_stability_only <- glm(formula_stability_only, family = binomial(link = "logit"), data = random_df_balanced)
+
+  random_model_stability_only.predict <- predict(random_model_stability_only, newdata = random_df_balanced, type="response")
+  random_model_with_shapes.predict <- predict(random_model_with_shapes, newdata = random_df_balanced, type="response")
+  random_model_stability_only.predict.roc <- roc(random_df_balanced$pos_neg, random_model_stability_only.predict)
+  random_model_with_shapes.predict.roc <- roc(random_df_balanced$pos_neg, random_model_with_shapes.predict)
+  random_model_stability_only.predict.roc.auc <- auc(random_model_stability_only.predict.roc)
+  random_model_with_shapes.predict.roc.auc <- auc(random_model_with_shapes.predict.roc)
+  
+  #reset the seed to keep results consistent among analyses
+  set.seed(95)
+  set.seed(42)
+  
+  ca_df<-read.table(df_path, header = T)
+  ca_df$pos_neg<-factor(ca_df$pos_neg, levels=c("pos","neg"))
+  ca_min_rows <- min(table(ca_df$lncRNA))
+  ca_df %>% group_by(lncRNA) %>% sample_n(ca_min_rows) -> ca_df_balanced
+  
+  ca_model_with_shapes <- glm(formula_with_shapes, family = binomial(link = "logit"), data=ca_df_balanced, na.action = na.exclude)
+  summary <- summary(ca_model_with_shapes)
+  ca_model_stability_only <- glm(formula_stability_only, family = binomial(link = "logit"), data = ca_df_balanced)
+
+  anova <- anova(ca_model_stability_only, ca_model_with_shapes, test="Chisq")
+
+  ca_model_stability_only.predict <- predict(ca_model_stability_only, newdata = ca_df_balanced, type="response")
+  ca_model_with_shapes.predict <- predict(ca_model_with_shapes, newdata = ca_df_balanced, type="response")
+  ca_model_stability_only.predict.roc <- roc(ca_df_balanced$pos_neg, ca_model_stability_only.predict)
+  ca_model_with_shapes.predict.roc <- roc(ca_df_balanced$pos_neg, ca_model_with_shapes.predict)
+  ca_model_stability_only.predict.roc.auc <- auc(ca_model_stability_only.predict.roc)
+  ca_model_with_shapes.predict.roc.auc <- auc(ca_model_with_shapes.predict.roc)
+  
+  par(pty = "s")
+  roc <- plot.roc(ca_model_stability_only.predict.roc, main= paste("Average"), col="#f6b26b", lwd=2)
+  lines.roc(ca_model_with_shapes.predict.roc, col="#ffd966", lwd=2)
+  lines.roc(random_model_stability_only.predict.roc, col="#1155cc", lwd=2)
+  lines.roc(random_model_with_shapes.predict.roc, col="#6d9eeb", lwd=2)
+  
+  return(list (summary, anova, roc))
+}
+
+lnc_comparison_models_AUC <- function (lnc, condition, stability, df_path, comparison_path){
+  setwd("/home/molinerislab/RNABSdb_3DDNA/dataset/v1/")
+  set.seed(42)
+
+  formula_with_shapes <- as.formula(paste("pos_neg ~", stability, "+ HelT + MGW + ProT + Roll"))
+  formula_stability_only <- as.formula(paste("pos_neg ~", stability))
+  
+  random_df<-read.table(comparison_path, header = T)
+  random_df$pos_neg<-factor(random_df$pos_neg, levels=c("pos","neg"))
+  random_min_rows <- min(table(random_df$lncRNA))
+  random_df %>% group_by(lncRNA) %>% sample_n(random_min_rows) -> random_df_balanced
+  random_df_restricted <- subset(random_df_balanced, random_df_balanced$lncRNA==lnc)
+
+  random_model_with_shapes <- glm(formula_with_shapes, family = binomial(link = "logit"), data=random_df_restricted, na.action = na.exclude)
+  random_model_stability_only <- glm(formula_stability_only, family = binomial(link = "logit"), data = random_df_restricted)
+
+  random_model_stability_only.predict <- predict(random_model_stability_only, newdata = random_df_restricted, type="response")
+  random_model_with_shapes.predict <- predict(random_model_with_shapes, newdata = random_df_restricted, type="response")
+  random_model_stability_only.predict.roc <- roc(random_df_restricted$pos_neg, random_model_stability_only.predict)
+  random_model_with_shapes.predict.roc <- roc(random_df_restricted$pos_neg, random_model_with_shapes.predict)
+  random_model_stability_only.predict.roc.auc <- auc(random_model_stability_only.predict.roc)
+  random_model_with_shapes.predict.roc.auc <- auc(random_model_with_shapes.predict.roc)
+  
+  #reset del seed per evitare che dia risultati diversi dalle analisis precedenti, spero
+  set.seed(95)
+  set.seed(42)
+  
+  ca_df<-read.table(df_path, header = T)
+  ca_df$pos_neg<-factor(ca_df$pos_neg, levels=c("pos","neg"))
+  ca_min_rows <- min(table(ca_df$lncRNA))
+  ca_df %>% group_by(lncRNA) %>% sample_n(ca_min_rows) -> ca_df_balanced
+  ca_df_restricted <- subset(ca_df_balanced, ca_df_balanced$lncRNA==lnc)
+  
+  ca_model_with_shapes <- glm(formula_with_shapes, family = binomial(link = "logit"), data=ca_df_restricted, na.action = na.exclude)
+  summary <- summary(ca_model_with_shapes)
+  ca_model_stability_only <- glm(formula_stability_only, family = binomial(link = "logit"), data = ca_df_restricted)
+
+  anova <- anova(ca_model_stability_only, ca_model_with_shapes, test="Chisq")
+
+  ca_model_stability_only.predict <- predict(ca_model_stability_only, newdata = ca_df_restricted, type="response")
+  ca_model_with_shapes.predict <- predict(ca_model_with_shapes, newdata = ca_df_restricted, type="response")
+  ca_model_stability_only.predict.roc <- roc(ca_df_restricted$pos_neg, ca_model_stability_only.predict)
+  ca_model_with_shapes.predict.roc <- roc(ca_df_restricted$pos_neg, ca_model_with_shapes.predict)
+  ca_model_stability_only.predict.roc.auc <- auc(ca_model_stability_only.predict.roc)
+  ca_model_with_shapes.predict.roc.auc <- auc(ca_model_with_shapes.predict.roc)
+  
+  par(pty = "s")
+  roc <- plot.roc(ca_model_stability_only.predict.roc, main= paste(lnc), col="gold1", lwd=2)
+  lines.roc(ca_model_with_shapes.predict.roc, col="goldenrod1", lwd=2)
+  lines.roc(random_model_stability_only.predict.roc, col="steelblue2", lwd=2)
+  lines.roc(random_model_with_shapes.predict.roc, col="royalblue2", lwd=2)
+  
+  return(list (summary, anova, roc))
+}
+```
+
+```{r}
+condition = "- all_cCREs"
+stability = "Stability_best"
+df_path = "ca_neg_regions/general_cCRE/ALL_shape.3plex_stability.matrix.gz"
+df_confront = "best_param_3plex/ALL_shape.3plex_stability.matrix.gz"
+
+comparison_models_AUC(condition, stability, df_path, df_confront)
+
+pdf("single_lnc.Stability_best.ROC.pdf", width = 7, height = 5, pointsize = 13)
+lnc_comparison_models_AUC("MEG3", condition, stability, df_path, df_confront)
+lnc_comparison_models_AUC("CDKN2B-AS1", condition, stability, df_path, df_confront)
+lnc_comparison_models_AUC("NEAT1", condition, stability, df_path, df_confront)
+lnc_comparison_models_AUC("Meg3", condition, stability, df_path, df_confront)
+dev.off()
+
+```
