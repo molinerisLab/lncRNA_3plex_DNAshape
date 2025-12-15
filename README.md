@@ -16,6 +16,8 @@ Ensure your directory contains the following folders with the pre-calculated mat
     * `data.table`
     * `hexbin`
     * `ggpointdensity`
+    * https://github.com/molinerisLab/ConfoundingAwareBedShuffle
+    This tool generates negative control genomic regions that mirror the distributional properties of a target positive set regarding a specific confounding feature
 
 ## 🚀 How to Run
 1.  **Clone the repository:**
