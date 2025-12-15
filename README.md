@@ -179,7 +179,7 @@ This script is intended exclusively for visualization and model comparison withi
 
 # 📈 Correlation analysis - DNA Shape vs Stability
 
-# 🎯 Purpose
+## 🎯 Purpose
 This R script reproduces the analysis for Supplementary Figures 4 and 5. It investigates the relationship between predicted triplex stability (3plex score) and DNA 3D shape features (Helix Twist, Minor Groove Width, Propeller Twist, and Roll) at two levels of resolution:
 * **Aggregated Level:** Mean shape vs. mean stability per lncRNA.
 * **Region Level:** Individual binding sites, analyzing local density and top-stability candidates.
@@ -211,3 +211,39 @@ The script generates the following files for each dataset:
 * **RegionPlot_OVERALL_DENSITY.pdf:** Density-colored scatterplot of all genomic binding sites.
 * **RegionPlot_FACETED_Top10.pdf:** Per-lncRNA plots separating top 10% stable sites.
 * **RegionPlot_FACETED_cor_table_Top10.csv:** Statistical table containing Pearson correlation coefficients and adjusted p-values.
+
+# 🌡️ Differential DNA Shape Analysis - Median_diff_heatmap.Rmd
+
+## 🎯 Purpose
+This R Notebook performs a systematic comparison of DNA shape features between lncRNA binding sites (positive) and background regions (negative). It generates the dot-heatmap (**Figure 2**) that visualize:
+* **Effect Size:** The median difference in normalized shape values (color scale).
+* **Significance:** The statistical robustness of the difference (circle size).
+
+## 📥 Inputs
+The script requires aggregated shape feature files for both the random and cCRE-balanced datasets:
+* `best_param_3plex/ALL_shape.aggregated.rearranged.gz` (Random Negatives)
+* `ca_neg_regions/general_cCRE/ALL_shape.aggregated.fixed.gz` (cCRE Balanced Negatives)
+
+## 📦 Dependencies
+The analysis relies on the following R packages for statistical testing and complex visualization:
+* `ComplexHeatmap` & `circlize`
+* `ggpubr` 
+* `openxlsx` 
+* `tidyverse` (`dplyr`, `tidyr`, `ggplot2`)
+
+## 📊 Analysis Logic
+1.  **Normalization:** DNA shape values are normalized using a robust Z-score approach (centering by median and scaling by Median Absolute Deviation, MAD) to make different shape features comparable.
+2.  **Statistical Testing:** A non-parametric **Wilcoxon rank-sum test** is performed for every lncRNA-feature pair to assess if the shape distribution in positive regions differs significantly from negatives.
+3.  **Aggregation:**
+    * Computes statistics for individual lncRNAs.
+    * Computes a **"Total Average"** across the entire dataset.
+    * Computes a specific **"TPX-validated"** average for a subset of known triplex-forming lncRNAs (e.g., NEAT1, MEG3).
+4.  **Visualization:**
+    * **Color (Blue-Red):** Represents the shift in median shape value (Red = higher in positives, Blue = lower).
+    * **Size:** Represents the statistical significance ($-\log_{10}(\text{p-value})$).
+
+## 📤 Output
+The script produces both graphical and tabular outputs:
+* **`Median_diff.heatmap.pdf`:** The main figure displaying the dot-heatmaps for Random and cCRE comparisons.
+* **`matrices_output_random.xlsx`:** Excel workbook containing the raw median difference matrix and p-value matrix.
+* **`matrices_output_all_cCREs.xlsx`:** Equivalent statistics for the cCRE-balanced dataset.
