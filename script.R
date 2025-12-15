@@ -1,5 +1,5 @@
 load_required_pkgs <- function() {
-  pkgs <- c("tidyverse", "ggpubr", "data.table", "hexbin", "ggpointdensity")
+  pkgs <- c("tidyverse", "ggpubr", "data.table", "hexbin", "ggpointdensity", "R.utils")
 
   to_install <- pkgs[!vapply(pkgs, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1))]
   if (length(to_install) > 0) {
@@ -18,9 +18,9 @@ load_required_pkgs()
 # 3. Biosample: Controls for cell-type specific chromatin (strictest control).
 
 files <- list(
-  "Random_Negatives" = "Random_Negatives/ALL_shape.3plex_stability.matrix",
-  "cCRE_Balanced"    = "cCRE_Balanced/ALL_shape.3plex_stability.matrix",
-  "Biosample_Specific" = "Biosample_Specific/ALL_shape.3plex_stability.matrix"
+  "Random_Negatives" = "best_param_3plex/ALL_shape.3plex_stability.matrix.gz",
+  "cCRE_Balanced"    = "ca_neg_regions/general_cCRE/ALL_shape.3plex_stability.matrix.gz",
+  "Biosample_Specific" = "ca_neg_regions/specific-no_low_DNase/ALL_shape.3plex_stability.matrix.gz"
 )
 
 shape_features <- c("HelT", "MGW", "ProT", "Roll")
