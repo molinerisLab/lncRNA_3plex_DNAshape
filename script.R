@@ -12,10 +12,10 @@ load_required_pkgs <- function() {
 load_required_pkgs()
 
 # --- CONFIGURATION ---
-#  three different datasets to test the hypothesis against increasing levels of stringency:
-# 1. Random: Baseline comparison against random genome.
-# 2. cCRE: Controls for general open chromatin (rules out accessibility bias).
-# 3. Biosample: Controls for cell-type specific chromatin (strictest control).
+#  three different datasets :
+# 1. Random
+# 2. cCRE
+# 3. Biosample
 
 files <- list(
   "Random_Negatives" = "best_param_3plex/ALL_shape.3plex_stability.matrix.gz",
@@ -42,7 +42,6 @@ run_analysis <- function(dataset_name, file_path) {
   print(paste("Columns in file:", paste(colnames(df), collapse = ", ")))
 
   # 1. AGGREGATION: Calculate the MEAN Score and MEAN Shape for each lncRNA.
-  # This treats each lncRNA as a biological unit (centroid), reducing noise from individual peaks.
   df_summary <- df %>%
     group_by(lncRNA, get(label_col)) %>% 
     summarise(

@@ -138,8 +138,12 @@ full_df$pos_neg <- factor(full_df$pos_neg, levels = c("neg", "pos"))
   
   # Set A-NEW: Faceted by lncRNA AND pos_neg
   p_faceted_all_posneg <- make_plot(full_df_sorted, "All lncRNAs (Faceted by Class)") +
-    facet_grid(pos_neg ~ lncRNA) +
-    labs(subtitle = "Rows: Class (neg/pos), Columns: lncRNA")
+    facet_grid(lncRNA ~ pos_neg) +
+    labs(subtitle = "Rows: lncRNA, Columns: Class (neg/pos)") +
+    theme(
+      panel.spacing.x = unit(2, "lines"),  # horizontal spacing between neg/pos columns
+      panel.spacing.y = unit(1.5, "lines")   # vertical spacing between lncRNA rows
+    )
 
   # Set B: TRAINING lncRNAs Only
   p_combined_train <- make_plot(train_only_sorted, "Training Set Only (Combined)")
@@ -150,11 +154,21 @@ full_df$pos_neg <- factor(full_df$pos_neg, levels = c("neg", "pos"))
   p_faceted_train_posneg <- make_plot(train_only_sorted, "Training Set (Faceted by Class)") +
     facet_grid(pos_neg ~ lncRNA) +
     labs(subtitle = "Rows: Class (neg/pos), Columns: lncRNA")
+
+  p_faceted_meg3 <- make_plot(
+    full_df_sorted %>% filter(lncRNA == "MEG3"), 
+    "MEG3 Only (Faceted by Class)"
+  ) +
+    facet_grid(lncRNA ~ pos_neg) +
+    labs(subtitle = "Rows: Class (neg/pos), Columns: lncRNA")
   
+
+
   return(list(
     all_combined = p_combined_all, 
     all_faceted = p_faceted_all,
     all_faceted_posneg = p_faceted_all_posneg,
+    meg3_faceted = p_faceted_meg3,
     train_combined = p_combined_train,
     train_faceted = p_faceted_train,
     train_faceted_posneg = p_faceted_train_posneg
@@ -172,8 +186,8 @@ plots <- generate_comparison_scatterplots(stability_metric, file_path)
 # 1. All lncRNAs
 ggsave("Scatter_ALL_Combined_PosNeg.pdf", plot = plots$all_combined, width = 8, height = 8)
 ggsave("Scatter_ALL_Faceted_PosNeg.pdf", plot = plots$all_faceted, width = 15, height = 12)
-ggsave("Scatter_ALL_Faceted_ByClass.pdf", plot = plots$all_faceted_posneg, width = 20, height = 6)
-
+ggsave("Scatter_ALL_Faceted_ByClass.pdf", plot = plots$all_faceted_posneg, width = 10, height = 40)
+ggsave("Scatter_MEG3_Faceted_ByClass.pdf", plot = plots$meg3_faceted, width = 6, height = 6)
 # 2. Training Only
 ggsave("Scatter_Training_Combined_PosNeg.pdf", plot = plots$train_combined, width = 8, height = 8)
 ggsave("Scatter_Training_Faceted_PosNeg.pdf", plot = plots$train_faceted, width = 10, height = 8)
