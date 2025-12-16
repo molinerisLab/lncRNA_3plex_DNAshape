@@ -162,16 +162,22 @@ full_df$pos_neg <- factor(full_df$pos_neg, levels = c("neg", "pos"))
     facet_grid(lncRNA ~ pos_neg) +
     labs(subtitle = "Rows: Class (neg/pos), Columns: lncRNA")
   
+  p_faceted_train_by_class <- make_plot(train_only_sorted, "Training Set (Faceted by Class Only)") +
+    facet_wrap(~ pos_neg, ncol = 2) +
+    labs(subtitle = "Training lncRNAs grouped by Class")
+
 
 
   return(list(
-    all_combined = p_combined_all, 
+    all_combined = p_combined_all,
     all_faceted = p_faceted_all,
     all_faceted_posneg = p_faceted_all_posneg,
-    meg3_faceted = p_faceted_meg3,
+    all_faceted_by_class = p_faceted_all_by_class,  
     train_combined = p_combined_train,
     train_faceted = p_faceted_train,
-    train_faceted_posneg = p_faceted_train_posneg
+    train_faceted_posneg = p_faceted_train_posneg,
+    train_faceted_by_class = p_faceted_train_by_class,  
+    meg3_faceted = p_faceted_meg3
   ))
 }
 
@@ -187,8 +193,11 @@ plots <- generate_comparison_scatterplots(stability_metric, file_path)
 ggsave("Scatter_ALL_Combined_PosNeg.pdf", plot = plots$all_combined, width = 8, height = 8)
 ggsave("Scatter_ALL_Faceted_PosNeg.pdf", plot = plots$all_faceted, width = 15, height = 12)
 ggsave("Scatter_ALL_Faceted_ByClass.pdf", plot = plots$all_faceted_posneg, width = 10, height = 40)
+ggsave("Scatter_ALL_Faceted_ClassOnly.pdf", plot = plots$all_faceted_by_class, width = 10, height = 5)  
 ggsave("Scatter_MEG3_Faceted_ByClass.pdf", plot = plots$meg3_faceted, width = 6, height = 6)
+
 # 2. Training Only
 ggsave("Scatter_Training_Combined_PosNeg.pdf", plot = plots$train_combined, width = 8, height = 8)
 ggsave("Scatter_Training_Faceted_PosNeg.pdf", plot = plots$train_faceted, width = 10, height = 8)
 ggsave("Scatter_Training_Faceted_ByClass.pdf", plot = plots$train_faceted_posneg, width = 12, height = 6)
+ggsave("Scatter_Training_Faceted_ClassOnly.pdf", plot = plots$train_faceted_by_class, width = 10, height = 5)  
